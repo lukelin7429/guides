@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deploy Your Website to GitHub Pages · 把你的網站部署到 GitHub Pages</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', 'Lato', 'PingFang TC', 'Apple LiGothic Medium', 'Microsoft JhengHei', sans-serif;
+    background: #ffffff;
+    color: #1a1a1a;
+    line-height: 1.7;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .zh {
+    font-family: 'PingFang TC', 'Apple LiGothic Medium', 'Microsoft JhengHei', sans-serif;
+    color: #555;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 80px 32px 120px; }
+
+  /* Step color tokens */
+  .c1 { --color: #FF6B6B; --color-soft: #FFE8E8; --color-dark: #C92A2A; }
+  .c2 { --color: #FFB800; --color-soft: #FFF4D6; --color-dark: #B07A00; }
+  .c3 { --color: #06D6A0; --color-soft: #D6F8EE; --color-dark: #057A5C; }
+  .c4 { --color: #118AB2; --color-soft: #D6EEF8; --color-dark: #0A5A75; }
+  .c5 { --color: #9D4EDD; --color-soft: #EEE0FA; --color-dark: #5A2A85; }
+  .c6 { --color: #EF476F; --color-soft: #FCDCE6; --color-dark: #A02644; }
+
+  /* Hero */
+  header {
+    margin-bottom: 80px;
+    padding: 48px 40px 56px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #FFE8E8 0%, #FFF4D6 20%, #D6F8EE 45%, #D6EEF8 70%, #EEE0FA 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: ""; position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+  }
+  header::after {
+    content: ""; position: absolute; bottom: -80px; left: -40px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+  }
+  .tag {
+    display: inline-block; font-size: 14px; letter-spacing: 3px; font-weight: 700;
+    text-transform: uppercase; color: #fff; margin-bottom: 24px;
+    padding: 8px 18px; border-radius: 100px;
+    background: linear-gradient(90deg, #EF476F, #9D4EDD, #118AB2);
+    position: relative; z-index: 1;
+  }
+  h1 {
+    font-size: 56px; line-height: 1.15; font-weight: 800;
+    letter-spacing: -1px; margin-bottom: 20px;
+    position: relative; z-index: 1;
+    color: #1a1a1a;
+  }
+  h1 .accent {
+    background: linear-gradient(90deg, #FF6B6B, #FFB800, #06D6A0, #118AB2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h1 .zh {
+    display: block; font-size: 36px; font-weight: 700;
+    margin-top: 14px; color: #2a2a2a;
+    -webkit-text-fill-color: #2a2a2a;
+  }
+  .lede {
+    font-size: 22px; color: #444; margin-top: 28px;
+    max-width: 720px; position: relative; z-index: 1;
+  }
+  .lede .zh { display: block; margin-top: 10px; font-size: 20px; color: #555; }
+
+  /* Steps */
+  .step {
+    margin-bottom: 56px; padding: 40px 36px;
+    border-radius: 20px;
+    border: 2px solid var(--color-soft);
+    background: #fff;
+    transition: transform 0.2s;
+    position: relative;
+  }
+  .step::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 8px;
+    background: var(--color); border-radius: 20px 20px 0 0;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--color); color: #fff;
+    font-size: 32px; font-weight: 800; margin-bottom: 24px;
+    box-shadow: 0 8px 20px var(--color-soft);
+  }
+  h2 {
+    font-size: 36px; line-height: 1.25; font-weight: 800;
+    margin-bottom: 8px; color: var(--color-dark);
+  }
+  h2 .zh {
+    display: block; font-size: 26px; font-weight: 700;
+    color: #2a2a2a; margin-top: 6px;
+  }
+  .step p { font-size: 20px; margin-top: 16px; color: #2a2a2a; }
+  .step p.zh { font-size: 19px; margin-top: 8px; color: #555; }
+  .step ul { margin: 20px 0 0 8px; padding-left: 24px; }
+  .step li { font-size: 20px; margin-bottom: 12px; color: #2a2a2a; }
+  .step li.zh { font-size: 19px; margin-top: -6px; margin-bottom: 18px; color: #555; }
+  .step strong { color: var(--color-dark); }
+  .step code {
+    background: var(--color-soft); color: var(--color-dark);
+    padding: 2px 8px; border-radius: 5px; font-size: 0.9em;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  /* Callout boxes — use step color */
+  .note {
+    background: var(--color-soft);
+    border-left: 6px solid var(--color);
+    padding: 24px 28px;
+    margin-top: 24px;
+    border-radius: 8px;
+  }
+  .note strong {
+    display: block; font-size: 16px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--color-dark);
+    margin-bottom: 10px;
+  }
+  .note p { margin-top: 8px !important; font-size: 19px !important; color: #2a2a2a; }
+  .note p.zh { font-size: 18px !important; color: #555; }
+
+  .code-block {
+    background: #1e1e2e;
+    color: #f8f8f2;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 17px;
+    margin-top: 20px;
+    overflow-x: auto;
+    word-break: break-all;
+    border: none;
+  }
+  .code-block .var { color: #f1fa8c; }
+
+  .check {
+    background: linear-gradient(135deg, #D6F8EE 0%, #FFF4D6 100%);
+    border: 2px solid #06D6A0;
+    padding: 28px 32px;
+    margin-top: 28px;
+    border-radius: 12px;
+    position: relative;
+  }
+  .check strong {
+    display: block; font-size: 16px; letter-spacing: 2px;
+    text-transform: uppercase; color: #057A5C; margin-bottom: 10px;
+  }
+  .check p { margin-top: 8px !important; font-size: 20px !important; color: #1a1a1a; font-weight: 500; }
+  .check p.zh { font-size: 18px !important; color: #444; font-weight: 400; }
+
+  /* FAQ */
+  .faq {
+    margin-top: 100px; padding: 56px 40px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #FFF8F0 0%, #F0F8FF 100%);
+  }
+  .faq h3 {
+    font-size: 42px; font-weight: 800; margin-bottom: 48px;
+    background: linear-gradient(90deg, #EF476F, #9D4EDD);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .faq h3 .zh {
+    display: block; font-size: 30px; margin-top: 8px;
+    -webkit-text-fill-color: #2a2a2a; color: #2a2a2a;
+  }
+  .q {
+    margin-bottom: 32px; padding: 24px 28px;
+    background: #fff; border-radius: 14px;
+    border-left: 5px solid;
+  }
+  .q:nth-child(2) { border-color: #FF6B6B; }
+  .q:nth-child(3) { border-color: #FFB800; }
+  .q:nth-child(4) { border-color: #06D6A0; }
+  .q:nth-child(5) { border-color: #118AB2; }
+  .q:nth-child(6) { border-color: #9D4EDD; }
+  .q h4 { font-size: 24px; font-weight: 700; margin-bottom: 6px; color: #1a1a1a; }
+  .q h4 .zh { display: block; font-size: 20px; font-weight: 600; color: #2a2a2a; margin-top: 4px; }
+  .q p { font-size: 19px; color: #444; margin-top: 12px; }
+  .q p.zh { font-size: 18px; margin-top: 6px; color: #666; }
+  .q code {
+    background: #f4f4f4; padding: 2px 8px; border-radius: 5px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.9em;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 80px; padding: 32px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #FF6B6B, #FFB800, #06D6A0, #118AB2, #9D4EDD);
+    font-size: 17px; color: #fff; text-align: center;
+    font-weight: 500;
+  }
+  footer .zh { font-size: 16px; margin-top: 6px; display: block; color: rgba(255,255,255,0.9); }
+
+  @media (max-width: 640px) {
+    body { font-size: 18px; }
+    .wrap { padding: 48px 18px 80px; }
+    header { padding: 36px 24px 42px; }
+    h1 { font-size: 36px; }
+    h1 .zh { font-size: 24px; }
+    h2 { font-size: 26px; }
+    h2 .zh { font-size: 20px; }
+    .step { padding: 32px 22px; }
+    .step-num { width: 58px; height: 58px; font-size: 26px; }
+    .faq { padding: 40px 22px; }
+    .faq h3 { font-size: 30px; }
+    .faq h3 .zh { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag">A Simple Guide · 簡易說明</div>
+  <h1>
+    Deploy Your Website to <span class="accent">GitHub Pages</span>
+    <span class="zh">把你的網站部署到 GitHub Pages</span>
+  </h1>
+  <p class="lede">
+    You received a folder of website files. Follow these six steps to put your site online — for free, in about 10 minutes. No coding required.
+    <span class="zh">你收到一個網站資料夾。照著下面六個步驟，大約 10 分鐘就能把網站免費發布上線，完全不需要寫程式。</span>
+  </p>
+</header>
+
+<!-- STEP 1 -->
+<section class="step c1">
+  <div class="step-num">1</div>
+  <h2>
+    Check what you received
+    <span class="zh">先確認收到的檔案</span>
+  </h2>
+  <p>Unzip the folder I sent you. Inside you should see a file called <strong>index.html</strong> — this is the homepage. Other files (images, CSS, JS) sit next to it.</p>
+  <p class="zh">把我傳給你的壓縮檔解開。資料夾裡會看到一個 <strong>index.html</strong>，那就是首頁。其他檔案（圖片、樣式、JS）會跟它放在一起。</p>
+  <div class="check">
+    <strong>✓ Quick test · 先測試</strong>
+    <p>Double-click <strong>index.html</strong>. Your browser should open it and show the website. If it works locally, it will work on GitHub.</p>
+    <p class="zh">直接點兩下 <strong>index.html</strong>，瀏覽器會自動打開你的網站。本機看得到，上 GitHub 就一定看得到。</p>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step c2">
+  <div class="step-num">2</div>
+  <h2>
+    Sign up for GitHub
+    <span class="zh">註冊 GitHub 帳號</span>
+  </h2>
+  <p>If you don't have an account yet, go to <strong>github.com</strong> and click <em>Sign up</em>. It's free. Pick a username you don't mind appearing in your website's URL.</p>
+  <p class="zh">如果還沒有帳號，到 <strong>github.com</strong> 點 <em>Sign up</em> 註冊，完全免費。挑一個你不介意出現在網址裡的帳號名稱。</p>
+  <div class="note">
+    <strong>Note · 提醒</strong>
+    <p>Your username becomes part of your site address, like <code>https://yourname.github.io/...</code></p>
+    <p class="zh">你的帳號會出現在網址裡，例如 <code>https://yourname.github.io/...</code></p>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step c3">
+  <div class="step-num">3</div>
+  <h2>
+    Create a new repository
+    <span class="zh">建立一個新的 Repository</span>
+  </h2>
+  <p>After logging in, click the green <strong>"New"</strong> button (or the "+" at the top right → <em>New repository</em>).</p>
+  <p class="zh">登入後，點綠色的 <strong>"New"</strong> 按鈕（或右上角 "+" → <em>New repository</em>）。</p>
+  <ul>
+    <li><strong>Repository name:</strong> pick a short name (e.g. <em>my-website</em>). This appears in your URL.</li>
+    <li class="zh">名稱挑短一點，例如 <em>my-website</em>，會直接出現在網址。</li>
+    <li><strong>Public</strong> — must be Public for free GitHub Pages.</li>
+    <li class="zh">必須選 <strong>Public</strong>（公開），免費版 Pages 限定。</li>
+    <li>Leave the other options as default. Click <strong>"Create repository"</strong>.</li>
+    <li class="zh">其他選項都保留預設，按下 <strong>"Create repository"</strong>。</li>
+  </ul>
+</section>
+
+<!-- STEP 4 -->
+<section class="step c4">
+  <div class="step-num">4</div>
+  <h2>
+    Upload your folder
+    <span class="zh">上傳你的資料夾</span>
+  </h2>
+  <p>On your new empty repository page, look for the link that says <strong>"uploading an existing file"</strong>, or click <em>Add file → Upload files</em>.</p>
+  <p class="zh">在剛建好的空 repo 頁面，找到 <strong>"uploading an existing file"</strong> 的連結，或點 <em>Add file → Upload files</em>。</p>
+  <ul>
+    <li>Open your website folder on your computer.</li>
+    <li class="zh">打開你電腦裡的網站資料夾。</li>
+    <li>Select <strong>everything inside</strong> (including <code>index.html</code>) and drag it into the browser upload area.</li>
+    <li class="zh">把資料夾<strong>裡面的所有檔案</strong>（包含 <code>index.html</code>）全部拉進瀏覽器的上傳區。</li>
+    <li>Wait for all files to finish uploading. Scroll down and click <strong>"Commit changes"</strong>.</li>
+    <li class="zh">等檔案全部上傳完，往下捲，按 <strong>"Commit changes"</strong>。</li>
+  </ul>
+  <div class="note">
+    <strong>Important · 注意</strong>
+    <p>Drag the <strong>contents</strong> of the folder, not the folder itself. <code>index.html</code> must end up at the top level of the repository.</p>
+    <p class="zh">是拉<strong>資料夾「裡面」的檔案</strong>，不是整個資料夾。<code>index.html</code> 必須在 repository 的最外層。</p>
+  </div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step c5">
+  <div class="step-num">5</div>
+  <h2>
+    Turn on GitHub Pages
+    <span class="zh">開啟 GitHub Pages</span>
+  </h2>
+  <p>In your repository, click <strong>Settings</strong> (top menu) → <strong>Pages</strong> (left sidebar).</p>
+  <p class="zh">在 repository 頁面，點 <strong>Settings</strong>（上方選單）→ <strong>Pages</strong>（左側選單）。</p>
+  <ul>
+    <li>Under <em>"Build and deployment"</em>, find <strong>Source</strong> and choose <strong>"Deploy from a branch"</strong>.</li>
+    <li class="zh">在 <em>"Build and deployment"</em> 區塊，<strong>Source</strong> 選 <strong>"Deploy from a branch"</strong>。</li>
+    <li>Under <strong>Branch</strong>, select <strong>main</strong> and folder <strong>/ (root)</strong>. Click <strong>Save</strong>.</li>
+    <li class="zh"><strong>Branch</strong> 選 <strong>main</strong>，資料夾選 <strong>/ (root)</strong>，按 <strong>Save</strong>。</li>
+  </ul>
+</section>
+
+<!-- STEP 6 -->
+<section class="step c6">
+  <div class="step-num">6</div>
+  <h2>
+    Wait a minute, then visit your site
+    <span class="zh">等一分鐘，打開你的網站</span>
+  </h2>
+  <p>GitHub takes about 1–2 minutes to publish. Refresh the Pages settings page — you'll see a green box with your live URL:</p>
+  <p class="zh">GitHub 大約需要 1–2 分鐘把網站發布上線。重新整理 Pages 設定頁，會看到一個綠色框，裡面就是你的網址：</p>
+  <div class="code-block">https://<span class="var">&lt;your-username&gt;</span>.github.io/<span class="var">&lt;repository-name&gt;</span>/</div>
+  <div class="check">
+    <strong>★ Done · 完成</strong>
+    <p>Open that URL in any browser. Share it with anyone — it works on phones, tablets, and computers worldwide.</p>
+    <p class="zh">用任何瀏覽器打開這個網址，就可以分享給任何人，手機、平板、電腦全世界都看得到。</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h3>
+    Common Questions
+    <span class="zh">常見問題</span>
+  </h3>
+
+  <div class="q">
+    <h4>
+      I want to update my website. How?
+      <span class="zh">想更新網站內容怎麼辦？</span>
+    </h4>
+    <p>Go to your repository, click the file you want to edit (e.g. <code>index.html</code>), then the pencil icon. Or upload a new version using the same drag-and-drop method. Changes appear online in about a minute.</p>
+    <p class="zh">回到 repository，點要修改的檔案（例如 <code>index.html</code>），按鉛筆圖示直接編輯；或用一樣的拖拉方式上傳新版本。改動約一分鐘後就會生效。</p>
+  </div>
+
+  <div class="q">
+    <h4>
+      Can I use my own domain (like mysite.com)?
+      <span class="zh">可以用自己的網域嗎（例如 mysite.com）？</span>
+    </h4>
+    <p>Yes. In <em>Settings → Pages</em>, fill in the "Custom domain" field, and add the right DNS records at your domain provider. Ask me when you're ready.</p>
+    <p class="zh">可以。在 <em>Settings → Pages</em> 填入 "Custom domain"，並到網域商設定 DNS。到時候再問我就好。</p>
+  </div>
+
+  <div class="q">
+    <h4>
+      My site shows "404" or appears broken. What do I check?
+      <span class="zh">網站出現 "404" 或畫面壞掉？</span>
+    </h4>
+    <p>Most often: (1) <code>index.html</code> isn't at the top level of the repository, or (2) image/CSS paths use uppercase/lowercase incorrectly. GitHub is case-sensitive — <code>Photo.jpg</code> and <code>photo.jpg</code> are different files.</p>
+    <p class="zh">最常見原因：(1) <code>index.html</code> 沒放在 repository 最外層；(2) 圖片或 CSS 路徑大小寫不對。GitHub 區分大小寫，<code>Photo.jpg</code> 跟 <code>photo.jpg</code> 是不同檔案。</p>
+  </div>
+
+  <div class="q">
+    <h4>
+      Is this really free? Forever?
+      <span class="zh">真的完全免費？永久嗎？</span>
+    </h4>
+    <p>Yes — for public repositories with reasonable traffic (100 GB/month bandwidth limit, which is plenty for personal sites). No credit card required.</p>
+    <p class="zh">是的。公開 repository 的個人網站完全免費（每月 100 GB 流量上限，一般個人站根本用不完），也不需要綁信用卡。</p>
+  </div>
+
+  <div class="q">
+    <h4>
+      What if I get stuck?
+      <span class="zh">如果卡住了怎麼辦？</span>
+    </h4>
+    <p>Take a screenshot of where you are and send it to me. Most issues are solved in one message.</p>
+    <p class="zh">截圖你卡住的畫面傳給我，多數問題一則訊息就能解決。</p>
+  </div>
+</section>
+
+<footer>
+  Prepared with care by Luke Lin · My Culture Connect
+  <span class="zh">人師教育協會 · 林吉祥老師整理</span>
+</footer>
+
+</div>
+</body>
+</html>
